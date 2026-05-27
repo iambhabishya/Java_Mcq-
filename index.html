@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSP & Servlet — Complete Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07090f;
+  --surface: #0f1520;
+  --surface2: #151e2e;
+  --surface3: #1a2640;
+  --border: #1e2d47;
+  --border2: #253550;
+  --accent: #00d4ff;
+  --accent2: #ff6b35;
+  --accent3: #a855f7;
+  --correct: #22d46a;
+  --wrong: #ff3d57;
+  --text: #dde4f0;
+  --text2: #9aaac5;
+  --muted: #4f627d;
+  --mono: 'Space Mono', monospace;
+  --sans: 'Syne', sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+
+body {
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* grid bg */
+body::before {
+  content:'';position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;z-index:0;
+}
+
+/* ─── HEADER ─── */
+header {
+  position:sticky;top:0;z-index:200;
+  background:rgba(7,9,15,0.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.header-top {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 24px;gap:16px;flex-wrap:wrap;
+}
+.logo {
+  font-family:var(--mono);font-size:12px;
+  color:var(--accent);letter-spacing:.12em;white-space:nowrap;
+  display:flex;align-items:center;gap:8px;
+}
+.logo-dot { width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse-dot 2s infinite; }
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(1.5);}}
+
+.score-bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.score-pill {
+  display:flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:20px;
+  border:1px solid var(--border);
+  background:var(--surface2);
+  font-family:var(--mono);font-size:11px;
+}
+.score-pill-num{font-size:15px;font-weight:700;}
+.score-pill-num.c{color:var(--correct);}
+.score-pill-num.w{color:var(--wrong);}
+.score-pill-num.p{color:var(--accent);}
+.score-pill-lbl{color:var(--muted);font-size:9px;letter-spacing:.1em;}
+
+.header-progress {
+  padding:0 24px 10px;
+}
+.prog-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .5s ease;}
+.prog-labels{display:flex;justify-content:space-between;margin-top:4px;font-family:var(--mono);font-size:9px;color:var(--muted);}
+
+/* ─── MAIN ─── */
+main{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:28px 20px 100px;}
+
+/* ─── TOOLBAR ─── */
+.toolbar {
+  display:flex;align-items:center;gap:10px;margin-bottom:24px;flex-wrap:wrap;
+  padding:14px 16px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+}
+.search-box {
+  flex:1;min-width:140px;
+  padding:8px 12px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--text);font-family:var(--mono);font-size:12px;
+  outline:none;transition:border-color .2s;
+}
+.search-box:focus{border-color:var(--accent);}
+.search-box::placeholder{color:var(--muted);}
+.filter-group{display:flex;gap:6px;flex-wrap:wrap;}
+.fb {
+  padding:6px 14px;border-radius:20px;
+  border:1px solid var(--border);
+  background:transparent;color:var(--muted);
+  font-family:var(--mono);font-size:10px;letter-spacing:.06em;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.fb:hover{border-color:var(--accent);color:var(--accent);}
+.fb.active{background:rgba(0,212,255,.12);border-color:var(--accent);color:var(--accent);}
+.fb.fc{border-color:rgba(34,212,106,.4);}
+.fb.fc.active{background:rgba(34,212,106,.1);border-color:var(--correct);color:var(--correct);}
+.fb.fw{border-color:rgba(255,61,87,.4);}
+.fb.fw.active{background:rgba(255,61,87,.1);border-color:var(--wrong);color:var(--wrong);}
+
+.sort-btn {
+  padding:6px 14px;border-radius:20px;
+  border:1px solid var(--border2);
+  background:transparent;color:var(--text2);
+  font-family:var(--mono);font-size:10px;
+  cursor:pointer;transition:all .2s;
+}
+.sort-btn:hover{border-color:var(--accent3);color:var(--accent3);}
+.sort-btn.active{background:rgba(168,85,247,.1);border-color:var(--accent3);color:var(--accent3);}
+
+/* ─── STATS ROW ─── */
+.stats-row{
+  display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;
+}
+.stat-chip{
+  flex:1;min-width:80px;
+  padding:12px 16px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  text-align:center;
+}
+.stat-chip-n{font-family:var(--mono);font-size:22px;font-weight:700;}
+.stat-chip-l{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em;margin-top:2px;}
+
+/* ─── QUESTION CARD ─── */
+.q-card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:24px 24px 20px;
+  margin-bottom:14px;
+  transition:border-color .3s,box-shadow .3s;
+  animation:fadeUp .25s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.q-card:hover{border-color:var(--border2);}
+.q-card.ac{border-color:rgba(34,212,106,.3);box-shadow:0 0 20px rgba(34,212,106,.04);}
+.q-card.aw{border-color:rgba(255,61,87,.3);box-shadow:0 0 20px rgba(255,61,87,.04);}
+
+.q-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.q-num{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.1em;}
+.q-tag{
+  padding:2px 8px;border-radius:4px;
+  font-family:var(--mono);font-size:9px;letter-spacing:.08em;
+  border:1px solid;
+}
+.tag-jsp{color:#60a5fa;border-color:rgba(96,165,250,.3);background:rgba(96,165,250,.06);}
+.tag-servlet{color:#fb923c;border-color:rgba(251,146,60,.3);background:rgba(251,146,60,.06);}
+.tag-jstl{color:#a78bfa;border-color:rgba(167,139,250,.3);background:rgba(167,139,250,.06);}
+.tag-jdbc{color:#34d399;border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.06);}
+.tag-java{color:#f472b6;border-color:rgba(244,114,182,.3);background:rgba(244,114,182,.06);}
+.tag-mvc{color:#fbbf24;border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.06);}
+.tag-http{color:#38bdf8;border-color:rgba(56,189,248,.3);background:rgba(56,189,248,.06);}
+.tag-session{color:#4ade80;border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.06);}
+.tag-el{color:#e879f9;border-color:rgba(232,121,249,.3);background:rgba(232,121,249,.06);}
+
+.q-divider{flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+
+.q-text{
+  font-size:15px;font-weight:600;line-height:1.6;
+  margin-bottom:16px;color:var(--text);
+}
+.q-text code{
+  font-family:var(--mono);font-size:13px;
+  background:var(--surface3);padding:1px 5px;border-radius:4px;
+  color:var(--accent);
+}
+
+/* ─── OPTIONS ─── */
+.options{display:grid;gap:8px;}
+.opt {
+  display:flex;align-items:center;gap:10px;
+  padding:11px 14px;padding-right:90px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  cursor:pointer;
+  transition:all .18s;
+  font-family:var(--sans);font-size:13px;font-weight:400;
+  color:var(--text2);
+  text-align:left;
+  position:relative;
+  width:100%;
+}
+.opt:hover:not(:disabled){
+  border-color:var(--accent);
+  background:rgba(0,212,255,.05);
+  color:var(--text);
+  transform:translateX(3px);
+}
+.opt:disabled{cursor:default;}
+
+.opt-badge{
+  min-width:26px;height:26px;border-radius:6px;
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  color:var(--muted);flex-shrink:0;transition:all .18s;
+}
+.opt-text{flex:1;word-break:break-word;line-height:1.5;}
+
+/* States */
+.opt.correct{border-color:var(--correct);background:rgba(34,212,106,.08);color:var(--text);animation:popIn .3s ease;}
+.opt.correct .opt-badge{background:var(--correct);color:#000;border-color:var(--correct);}
+.opt.wrong{border-color:var(--wrong);background:rgba(255,61,87,.08);color:var(--text);animation:shakeIt .35s ease;}
+.opt.wrong .opt-badge{background:var(--wrong);color:#fff;border-color:var(--wrong);}
+.opt.reveal{border-color:rgba(34,212,106,.45);background:rgba(34,212,106,.05);}
+.opt.reveal .opt-badge{border-color:var(--correct);color:var(--correct);}
+.opt.dim{opacity:.28;}
+
+@keyframes popIn{0%{transform:scale(1);}40%{transform:scale(1.015) translateX(3px);}100%{transform:scale(1) translateX(0);}}
+@keyframes shakeIt{0%,100%{transform:translateX(0);}20%{transform:translateX(-5px);}60%{transform:translateX(5px);}80%{transform:translateX(-3px);}}
+
+.res-tag{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.08em;
+  padding:3px 7px;border-radius:4px;
+  opacity:0;transition:opacity .25s .1s;white-space:nowrap;pointer-events:none;
+}
+.opt.correct .res-tag{opacity:1;background:rgba(34,212,106,.15);color:var(--correct);}
+.opt.wrong .res-tag{opacity:1;background:rgba(255,61,87,.15);color:var(--wrong);}
+.opt.reveal .res-tag{opacity:1;background:rgba(34,212,106,.1);color:var(--correct);}
+
+/* ─── EMPTY STATE ─── */
+.empty{text-align:center;padding:64px 20px;color:var(--muted);font-family:var(--mono);font-size:12px;letter-spacing:.08em;}
+
+/* ─── SUMMARY ─── */
+#summary{display:none;}
+#summary.show{display:block;animation:fadeUp .5s ease;}
+.sum-panel{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:52px 32px;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.sum-panel::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% -10%,rgba(0,212,255,.07) 0%,transparent 60%);
+  pointer-events:none;
+}
+.sum-grade{
+  font-family:var(--mono);font-size:96px;font-weight:700;line-height:1;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:6px;
+}
+.sum-sub{color:var(--muted);font-size:11px;letter-spacing:.2em;font-family:var(--mono);margin-bottom:36px;}
+.sum-grid{display:flex;justify-content:center;gap:28px;margin-bottom:36px;flex-wrap:wrap;}
+.sum-cell{text-align:center;}
+.sum-num{font-family:var(--mono);font-size:36px;font-weight:700;}
+.sum-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.12em;margin-top:3px;}
+.sum-msg{font-size:17px;font-weight:600;margin-bottom:32px;}
+.sum-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn{
+  padding:12px 28px;border-radius:10px;
+  font-family:var(--mono);font-size:12px;letter-spacing:.1em;
+  cursor:pointer;transition:all .2s;
+}
+.btn-primary{background:transparent;border:2px solid var(--accent);color:var(--accent);}
+.btn-primary:hover{background:var(--accent);color:#000;transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,212,255,.2);}
+.btn-secondary{background:transparent;border:2px solid var(--border2);color:var(--text2);}
+.btn-secondary:hover{border-color:var(--accent3);color:var(--accent3);}
+
+/* ─── SCROLL TOP ─── */
+#scrollTop{
+  position:fixed;bottom:24px;right:24px;
+  width:42px;height:42px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:10px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:var(--accent);
+  transition:all .2s;z-index:100;
+  opacity:0;pointer-events:none;
+}
+#scrollTop.vis{opacity:1;pointer-events:auto;}
+#scrollTop:hover{border-color:var(--accent);background:rgba(0,212,255,.08);}
+
+/* ─── CATEGORY PILLS ─── */
+.cat-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.cat-pill{
+  padding:4px 12px;border-radius:20px;
+  border:1px solid var(--border);
+  font-family:var(--mono);font-size:9px;letter-spacing:.06em;
+  cursor:pointer;transition:all .2s;color:var(--muted);
+  background:transparent;
+}
+.cat-pill:hover{border-color:var(--border2);color:var(--text2);}
+.cat-pill.active{border-color:var(--accent3);color:var(--accent3);background:rgba(168,85,247,.08);}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:600px){
+  .header-top{padding:10px 14px;}
+  .score-pill{padding:4px 9px;}
+  .score-pill-num{font-size:13px;}
+  .sum-grade{font-size:68px;}
+  .sum-num{font-size:28px;}
+  .q-card{padding:18px;}
+  .q-text{font-size:14px;}
+  main{padding:20px 14px 80px;}
+  .toolbar{padding:12px;}
+  .header-progress{padding:0 14px 8px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-dot"></div>
+      JSP<span style="color:var(--muted)">/</span>SERVLET&nbsp;<span style="color:var(--muted)">//</span>&nbsp;QUIZ
+    </div>
+    <div class="score-bar">
+      <div class="score-pill">
+        <span class="score-pill-lbl">CORRECT</span>
+        <span class="score-pill-num c" id="hC">0</span>
+      </div>
+      <div class="score-pill">
+        <span class="score-pill-lbl">WRONG</span>
+        <span class="score-pill-num w" id="hW">0</span>
+      </div>
+      <div class="score-pill">
+        <span class="score-pill-lbl">SCORE</span>
+        <span class="score-pill-num p" id="hP">—</span>
+      </div>
+    </div>
+  </div>
+  <div class="header-progress">
+    <div class="prog-track"><div class="prog-fill" id="pFill" style="width:0%"></div></div>
+    <div class="prog-labels">
+      <span id="pLeft">0 answered</span>
+      <span id="pRight">0 / <span id="pTotal">0</span></span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="toolbar">
+    <input class="search-box" id="searchBox" type="text" placeholder="🔍  Search questions or answers..." oninput="applyFilters()">
+    <div class="filter-group">
+      <button class="fb active" onclick="setFilter('all',this)">All</button>
+      <button class="fb" onclick="setFilter('unanswered',this)">Unanswered</button>
+      <button class="fb fc" onclick="setFilter('correct',this)">✓ Correct</button>
+      <button class="fb fw" onclick="setFilter('wrong',this)">✗ Wrong</button>
+    </div>
+    <button class="sort-btn" id="shuffleBtn" onclick="toggleShuffle()">⇄ Shuffle</button>
+  </div>
+
+  <div class="cat-bar" id="catBar"></div>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div id="quizContainer"></div>
+  <div id="summary"></div>
+</main>
+
+<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// ─────────────────────────────────────────────
+//  QUESTION BANK  (deduplicated, 200 questions)
+// ─────────────────────────────────────────────
+const QUESTIONS = [
+  // ── JSP BASICS ──
+  { q:"What does JSP stand for?", opts:["Java Server Pages","Java Servlet Pages","Java Source Pages","Java Script Pages"], ans:0, cat:"JSP" },
+  { q:"What is the default extension of JSP files?", opts:[".html",".java",".jsp",".jspxml"], ans:2, cat:"JSP" },
+  { q:"Which JSP tag is used for a Java code block (scriptlet)?", opts:["<%= %>","<% %>","<%! %>","<%@ %>"], ans:1, cat:"JSP" },
+  { q:"Which JSP tag is used for expressions?", opts:["<%= %>","<% %>","<%! %>","<%@ %>"], ans:0, cat:"JSP" },
+  { q:"Which JSP tag is used for declarations?", opts:["<%= %>","<% %>","<%! %>","<%@ %>"], ans:2, cat:"JSP" },
+  { q:"Which JSP directive is used to import packages?", opts:["include","page","taglib","import"], ans:1, cat:"JSP" },
+  { q:"How many implicit objects are there in JSP?", opts:["5","8","9","11"], ans:2, cat:"JSP" },
+  { q:"Which implicit JSP object is used for session handling?", opts:["request","response","session","out"], ans:2, cat:"JSP" },
+  { q:"Which implicit object is used to access form data?", opts:["request","response","config","page"], ans:0, cat:"JSP" },
+  { q:"Which implicit JSP object is used to access servlet config?", opts:["config","context","session","out"], ans:0, cat:"JSP" },
+  { q:"Which implicit JSP object is used to access application-wide data?", opts:["pageContext","application","config","session"], ans:1, cat:"JSP" },
+  { q:"Which object is used to access all JSP scopes?", opts:["request","session","pageContext","config"], ans:2, cat:"JSP" },
+  { q:"Which object is used to print output in JSP scriptlet?", opts:["response","request","out","page"], ans:2, cat:"JSP" },
+  { q:"Which JSP object represents the current page?", opts:["request","page","session","config"], ans:1, cat:"JSP" },
+  { q:"Which implicit object is used to get request info such as parameter, server name, server port, header?", opts:["Request","Response","Session","All of above"], ans:0, cat:"JSP" },
+  { q:"Which tag is used to include another JSP page (action tag)?", opts:["jsp:include","jsp:forward","jsp:param","jsp:useBean"], ans:0, cat:"JSP" },
+  { q:"Which tag is used to forward to another page (action tag)?", opts:["jsp:redirect","jsp:forward","jsp:include","jsp:useBean"], ans:1, cat:"JSP" },
+  { q:"Which JSP action tag is used to pass a parameter?", opts:["jsp:param","jsp:set","jsp:send","jsp:bean"], ans:0, cat:"JSP" },
+  { q:"Which JSP action tag is used to create/load a bean?", opts:["jsp:bean","jsp:useBean","jsp:newBean","jsp:createBean"], ans:1, cat:"JSP" },
+  { q:"Which JSP directive is used to include another file during translation phase?", opts:["include","import","taglib","page"], ans:0, cat:"JSP" },
+  { q:"Which tag is used to define a JSTL library in JSP?", opts:["<%@ import %>","<%@ include %>","<%@ taglib %>","<%@ library %>"], ans:2, cat:"JSP" },
+  { q:"Which tag is used to declare an error page in JSP?", opts:['<%@ page errorPage="error.jsp" %>','<%@ error="error.jsp" %>','<%@ exception="error.jsp" %>','<%@ page exception="error.jsp" %>'], ans:0, cat:"JSP" },
+  { q:"Which page directive attribute is used in the error JSP page?", opts:["isError","isException","isErrorPage","errorPage"], ans:2, cat:"JSP" },
+  { q:"What does <%=statement %> represent?", opts:["Scriptlet tag","Expression tag","Declaration tag","None of above"], ans:1, cat:"JSP" },
+  { q:"Which scriptlet tag is known as the declaration tag?", opts:["<% %>","<%= %>","<%! %>","<%@ %>"], ans:2, cat:"JSP" },
+  { q:"Which JSP scope is the narrowest?", opts:["session","application","request","page"], ans:3, cat:"JSP" },
+  { q:"Which tag is used in JSP to include another JSP at runtime?", opts:["<%@ include %>","jsp:include","jsp:forward","jsp:useBean"], ans:1, cat:"JSP" },
+  { q:"What tags in JSP Action are used for bean development?", opts:["jsp:setProperty","jsp:getProperty","jsp:useBean","All of the above"], ans:3, cat:"JSP" },
+  { q:"Which directive sets the page language in JSP?", opts:["<%@ taglib language='java' %>","<%@ page language='java' %>","<%@ include language='java' %>","<%@ lang='java' %>"], ans:1, cat:"JSP" },
+  { q:"Which implicit object is created by the web container for each JSP?", opts:["Request","Response","Config","Exception"], ans:2, cat:"JSP" },
+  { q:"Which object handles exceptions in JSP?", opts:["request","response","exception","config"], ans:2, cat:"JSP" },
+  { q:"Which tag is used to set a bean property in JSP?", opts:["jsp:getProperty","jsp:useBean","jsp:setProperty","jsp:forward"], ans:2, cat:"JSP" },
+  { q:"Which JSP tag prints the value of an EL expression?", opts:["<c:print>","<c:echo>","<c:out>","<c:value>"], ans:2, cat:"JSP" },
+  { q:"Which lifecycle phase compiles a JSP into a servlet?", opts:["Translation","Initialization","Destruction","Cleanup"], ans:0, cat:"JSP" },
+  { q:"Which tag is used to write Java expressions directly in JSP output?", opts:["<% %>","<%! %>","<%= %>","<%@ %>"], ans:2, cat:"JSP" },
+  { q:"Which keyword is used to declare a variable in a JSP declaration tag?", opts:["var","int / String (Java types)","declare","let"], ans:1, cat:"JSP" },
+  { q:"Which JSP scope is valid only for one request?", opts:["session","application","page","request"], ans:3, cat:"JSP" },
+  { q:"Which JSP scope is shared among all users?", opts:["request","session","application","page"], ans:2, cat:"JSP" },
+
+  // ── SERVLET BASICS ──
+  { q:"Which package is mainly used for servlet classes?", opts:["java.servlet","javax.servlet","servlet.java","java.web"], ans:1, cat:"Servlet" },
+  { q:"Which method is called first in the servlet lifecycle?", opts:["service()","init()","destroy()","doGet()"], ans:1, cat:"Servlet" },
+  { q:"Which method is called when a servlet is removed from memory?", opts:["stop()","service()","destroy()","finalize()"], ans:2, cat:"Servlet" },
+  { q:"Which method is called repeatedly for every request in the servlet lifecycle?", opts:["init()","service()","destroy()","finalize()"], ans:1, cat:"Servlet" },
+  { q:"Which method handles GET requests?", opts:["doPost()","service()","doGet()","request()"], ans:2, cat:"Servlet" },
+  { q:"Which method handles POST requests?", opts:["doPost()","doGet()","process()","execute()"], ans:0, cat:"Servlet" },
+  { q:"Which annotation is used to define a servlet?", opts:["@Servlet","@WebServlet","@ServletMapping","@Controller"], ans:1, cat:"Servlet" },
+  { q:"Which file is used to configure servlets traditionally?", opts:["pom.xml","servlet.xml","web.xml","config.xml"], ans:2, cat:"Servlet" },
+  { q:"Which server is commonly used for running servlets and JSP?", opts:["Apache HTTP Server","Tomcat","Nginx","GlassFish IDE"], ans:1, cat:"Servlet" },
+  { q:"What is the role of Tomcat?", opts:["IDE","Database","Web server and servlet container","Compiler"], ans:2, cat:"Servlet" },
+  { q:"Which folder contains JSP files in a Maven project?", opts:["src/main/java","src/main/resources","src/main/webapp","src/web"], ans:2, cat:"Servlet" },
+  { q:"Which method is used to redirect to another page?", opts:["forward()","include()","sendRedirect()","move()"], ans:2, cat:"Servlet" },
+  { q:"Which method is used to forward a request internally?", opts:["sendRedirect()","getRequestDispatcher().forward()","redirect()","jump()"], ans:1, cat:"Servlet" },
+  { q:"Which object is used to send a response to the client?", opts:["HttpServletRequest","HttpServletResponse","ServletConfig","HttpSession"], ans:1, cat:"Servlet" },
+  { q:"Which method is used to get form parameter value?", opts:["getValue()","getInput()","getParameter()","getField()"], ans:2, cat:"Servlet" },
+  { q:"Which method is used to write text in response from a servlet?", opts:["getWriter()","printWriter()","responseText()","getOutput()"], ans:0, cat:"Servlet" },
+  { q:"Which class is commonly used to print response text?", opts:["Scanner","PrintWriter","BufferedReader","FileWriter"], ans:1, cat:"Servlet" },
+  { q:"Which object is used to configure a servlet?", opts:["ServletContext","ServletConfig","HttpSession","RequestDispatcher"], ans:1, cat:"Servlet" },
+  { q:"Which method returns servlet initialization parameter?", opts:["getInitParameter()","getParameter()","getServletParameter()","getConfig()"], ans:0, cat:"Servlet" },
+  { q:"Which object is used to share data across the entire application?", opts:["ServletContext","ServletConfig","HttpSession","RequestDispatcher"], ans:0, cat:"Servlet" },
+  { q:"Which method is used to get servlet context?", opts:["getServletContext()","getContext()","getAppContext()","context()"], ans:0, cat:"Servlet" },
+  { q:"Which method is used to get current request URI?", opts:["getURI()","getRequestURI()","getRequestPath()","getURLPath()"], ans:1, cat:"Servlet" },
+  { q:"Which method is used to get all request parameters?", opts:["getAllParameters()","getParameterMap()","getParameters()","getRequestMap()"], ans:1, cat:"Servlet" },
+  { q:"Which method is used to retrieve multiple values of the same parameter?", opts:["getParameterArray()","getParameterValues()","getAllValues()","getMultiParameter()"], ans:1, cat:"Servlet" },
+  { q:"Which annotation is used to define servlet initialization parameters?", opts:["@Init","@WebParam","@WebInitParam","@ServletParam"], ans:2, cat:"Servlet" },
+  { q:"What is the purpose of RequestDispatcher include()?", opts:["Redirect user","Stop request","Include another resource output","Create session"], ans:2, cat:"Servlet" },
+  { q:"Which servlet object gives access to request headers?", opts:["request","response","session","context"], ans:0, cat:"Servlet" },
+  { q:"Which method is used to get a request header?", opts:["getHeader()","getRequestHeader()","getHeaders()","getHead()"], ans:0, cat:"Servlet" },
+  { q:"Which method is used to send an error code?", opts:["sendCode()","sendStatus()","sendError()","sendMessage()"], ans:2, cat:"Servlet" },
+  { q:"Which method is used to set content type in response?", opts:["setType()","setContent()","setContentType()","addContentType()"], ans:2, cat:"Servlet" },
+  { q:"Which MIME type is commonly used for HTML response?", opts:["text/plain","text/html","application/html","html/text"], ans:1, cat:"Servlet" },
+  { q:"Which method gets current servlet path?", opts:["getServletURL()","getServletPath()","getCurrentPath()","getServletURI()"], ans:1, cat:"Servlet" },
+  { q:"Which file is automatically searched first when opening a project root?", opts:["home.jsp","main.jsp","welcome file","dashboard.jsp"], ans:2, cat:"Servlet" },
+  { q:"Which class should you extend to create a servlet?", opts:["GenericServlet","AbstractServlet","HttpServlet","BaseServlet"], ans:2, cat:"Servlet" },
+  { q:"Which annotation marks a class as a web servlet?", opts:["@Controller","@Servlet","@WebServlet","@RequestMapping"], ans:2, cat:"Servlet" },
+  { q:"What type of object is HttpServletRequest?", opts:["Class","Interface","Abstract class","Enum"], ans:1, cat:"Servlet" },
+  { q:"Which method of HttpServletResponse sets the HTTP status code?", opts:["setCode()","setStatus()","writeStatus()","addStatus()"], ans:1, cat:"Servlet" },
+  { q:"What does the urlPatterns attribute in @WebServlet define?", opts:["Servlet class name","URL patterns mapped to the servlet","Init parameters","Filter order"], ans:1, cat:"Servlet" },
+  { q:"The servlet's init() method is loaded via a web server.", opts:["True","False","Only in Tomcat","Depends on version"], ans:0, cat:"Servlet" },
+  { q:"Life cycle of servlet includes:", opts:["init, service and destroy method","init, service, forward and destroy method","init, service, include and destroy method","None of above"], ans:0, cat:"Servlet" },
+  { q:"Which object is used to store data for one request only?", opts:["session","application","request","config"], ans:2, cat:"Servlet" },
+  { q:"Servlet file is navigated from:", opts:["Absolute path","Relative path","urlPatterns","Both a and b"], ans:2, cat:"Servlet" },
+  { q:"Which method is used to get the value from the parameter or header information?", opts:["request.setParameter(String name)","request.setAttribute(variableName,Object)","request.getParameter(String name)","request.getAttribute(VariableName,object)"], ans:2, cat:"Servlet" },
+  { q:"The ________ package represents the servlet API classes and interfaces.", opts:["Java.servlet","Javax.servlet","Javax.servlet.http","Both b and c"], ans:3, cat:"Servlet" },
+  { q:"Which RequestDispatcher method transmits the same request and response to a different servlet?", opts:["sendRedirect()","<a href=''>","forward()","Both a and c"], ans:2, cat:"Servlet" },
+  { q:"Which is used to send binary data in a servlet?", opts:["PrintWriter","ServletOutputStream","Writer","Output"], ans:1, cat:"Servlet" },
+  { q:"Which method returns the context path of the web application?", opts:["request.getAppPath()","request.getContextPath()","request.getWebPath()","request.getRootPath()"], ans:1, cat:"Servlet" },
+  { q:"Which method returns the name of the HTTP method used in the request?", opts:["request.getHTTPMethod()","request.getType()","request.getMethod()","request.getVerb()"], ans:2, cat:"Servlet" },
+  { q:"Which is correct to retrieve the absolute path?", opts:["response.contextPath()","request.contextPath()","request.getContextPath()","response.getContextPath()"], ans:2, cat:"Servlet" },
+  { q:"Correct code to get a web browser URL address in Java:", opts:["response.getURI()","request.getURI()","response.getRequestURI()","request.getRequestURI()"], ans:3, cat:"Servlet" },
+  { q:"Which object gives the name of the servlet?", opts:["ServletContext","HttpSession","ServletConfig","RequestDispatcher"], ans:2, cat:"Servlet" },
+  { q:"What happens if init() throws UnavailableException in a servlet?", opts:["Servlet is restarted","Server shuts down","Servlet is marked unavailable and destroy() is NOT called","doGet() is called instead"], ans:2, cat:"Servlet" },
+  { q:"Which annotation makes a servlet load at application startup?", opts:["loadOnStartup in @WebServlet","autoLoad = true","@StartupServlet","@Eager"], ans:0, cat:"Servlet" },
+  { q:"In a multi-threaded servlet environment, which is the safest way to handle shared data?", opts:["Use instance variables","Synchronize the service() method","Use local variables inside service/doGet/doPost","Implement SingleThreadModel"], ans:2, cat:"Servlet" },
+  { q:"Which class is used to wrap HttpServletRequest to modify request data?", opts:["HttpServletRequestFilter","RequestWrapper","HttpServletRequestWrapper","ServletRequestAdapter"], ans:2, cat:"Servlet" },
+  { q:"Which class should you extend to wrap and override HttpServletResponse behavior?", opts:["HttpServletResponseWrapper","ResponseFilter","HttpResponseAdapter","ServletResponseWrapper only"], ans:0, cat:"Servlet" },
+  { q:"Which method of HttpServletResponse prevents browser from caching the response?", opts:["response.setHeader('Cache-Control','no-store')","response.disableCache()","response.setNoCache(true)","response.addHeader('Pragma','no-cache') only"], ans:0, cat:"Servlet" },
+  { q:"Which method is used to bind objects on HttpSession instances?", opts:["getAttribute","setAttribute","getParameter","setParameter"], ans:1, cat:"Servlet" },
+  { q:"Which object stores user-specific data across requests?", opts:["request","application","session","config"], ans:2, cat:"Servlet" },
+  { q:"What is the difference between sendRedirect() and RequestDispatcher.forward()?", opts:["sendRedirect sends a new request from client; forward keeps the same request on server","forward sends a new request; sendRedirect keeps the same request","Both are identical in behavior","sendRedirect works only for POST requests"], ans:0, cat:"Servlet" },
+  { q:"Which method returns the length of the request body in bytes?", opts:["getBodyLength()","getContentLength()","getRequestSize()","getDataLength()"], ans:1, cat:"Servlet" },
+  { q:"Which folder contains WEB-INF/classes in a web app?", opts:["src","lib","WEB-INF/classes","bin"], ans:2, cat:"Servlet" },
+  { q:"Which folder is the deployment descriptor (web.xml) placed in?", opts:["src/main/java","WEB-INF","META-INF","src/resources"], ans:1, cat:"Servlet" },
+  { q:"Which port does Tomcat use by default?", opts:["80","443","8080","3000"], ans:2, cat:"Servlet" },
+  { q:"Which method sets attribute in request?", opts:["setParam()","setAttribute()","put()","add()"], ans:1, cat:"Servlet" },
+  { q:"Which method retrieves an attribute from request?", opts:["getParam()","getAttribute()","read()","fetch()"], ans:1, cat:"Servlet" },
+  { q:"Which method returns request parameter names?", opts:["getParameter()","getParameterNames()","getNames()","getParams()"], ans:1, cat:"Servlet" },
+  { q:"Which method is used to print a line in servlet response?", opts:["out.write()","response.print()","PrintWriter.println()","out.send()"], ans:2, cat:"Servlet" },
+  { q:"Which method gets server name?", opts:["getHost()","getServerName()","getName()","getDomain()"], ans:1, cat:"Servlet" },
+  { q:"Which method of ServletContext sets an application-level attribute?", opts:["setAttribute()","setAppAttribute()","setGlobalAttribute()","putAttribute()"], ans:0, cat:"Servlet" },
+  { q:"Which method reads a single line from the request input stream?", opts:["getReader().readLine()","getInputStream().read()","getLine()","readRequest()"], ans:0, cat:"Servlet" },
+
+  // ── FILTER & LISTENER ──
+  { q:"Which interface must be implemented to create a filter?", opts:["HttpFilter","ServletFilter","Filter","RequestFilter"], ans:2, cat:"Filter" },
+  { q:"Which annotation is used for filters?", opts:["@WebFilter","@Filter","@ServletFilter","@Controller"], ans:0, cat:"Filter" },
+  { q:"Which method is mandatory in the Filter interface?", opts:["process()","filter()","doFilter()","execute()"], ans:2, cat:"Filter" },
+  { q:"What is the purpose of a filter?", opts:["Database connection","Request preprocessing","JSP compilation","HTML rendering"], ans:1, cat:"Filter" },
+  { q:"When does a filter's destroy() method get called?", opts:["Once at the end of its life cycle","After doFilter completes each time","Only once at the beginning","After every filter run"], ans:0, cat:"Filter" },
+  { q:"Which interface does a servlet filter chain use to pass control to the next filter?", opts:["FilterConfig","FilterChain","ServletChain","FilterContext"], ans:1, cat:"Filter" },
+  { q:"Which method of FilterChain passes the request to the next filter or servlet?", opts:["chain.next()","chain.pass()","chain.doFilter()","chain.proceed()"], ans:2, cat:"Filter" },
+  { q:"Which lifecycle method of a filter receives FilterConfig as a parameter?", opts:["doFilter()","destroy()","init()","configure()"], ans:2, cat:"Filter" },
+  { q:"Which interface is implemented to listen to session creation and destruction?", opts:["HttpSessionListener","SessionEventListener","HttpSessionObserver","SessionTracker"], ans:0, cat:"Filter" },
+  { q:"Which annotation registers a listener in the servlet context?", opts:["@ServletListener","@WebListener","@ContextListener","@AppListener"], ans:1, cat:"Filter" },
+  { q:"Which servlet event is triggered when a session attribute is replaced?", opts:["HttpSessionAttributeListener.attributeAdded()","HttpSessionAttributeListener.attributeReplaced()","HttpSessionListener.sessionUpdated()","HttpSessionBindingListener.valueBound()"], ans:1, cat:"Filter" },
+
+  // ── SESSION & COOKIES ──
+  { q:"Which object is used to maintain session data?", opts:["Cookie","HttpSession","ServletConfig","RequestDispatcher"], ans:1, cat:"Session" },
+  { q:"Which method creates a session if one does not exist?", opts:["getSession(false)","createSession()","getSession(true)","makeSession()"], ans:2, cat:"Session" },
+  { q:"Which method returns null if session does not exist?", opts:["getSession(false)","getSession(true)","createSession()","openSession()"], ans:0, cat:"Session" },
+  { q:"Which method is used to invalidate a session?", opts:["session.remove()","session.end()","session.invalidate()","session.stop()"], ans:2, cat:"Session" },
+  { q:"Which method removes all session data?", opts:["removeAttribute()","invalidate()","clear()","destroy()"], ans:1, cat:"Session" },
+  { q:"Which method is used to remove a session attribute?", opts:["deleteAttribute()","clearAttribute()","removeAttribute()","endAttribute()"], ans:2, cat:"Session" },
+  { q:"Which object stores values across multiple pages for one user?", opts:["request","response","session","pageContext"], ans:2, cat:"Session" },
+  { q:"Which scope lasts until the browser is closed?", opts:["request","page","session","application"], ans:2, cat:"Session" },
+  { q:"Which scope lasts only for a single request?", opts:["request","session","application","pageContext"], ans:0, cat:"Session" },
+  { q:"Which scope is available throughout the application?", opts:["page","request","session","application"], ans:3, cat:"Session" },
+  { q:"Which code correctly creates a new session?", opts:["Session session = new Session()","Session session = response.getSession()","HttpSession session = request.getSession()","HttpSession session = request.getSession(false)"], ans:2, cat:"Session" },
+  { q:"Sessions is a component of SessionTracking used to keep track of client state on the server.", opts:["True","False","Partially True","Depends on implementation"], ans:0, cat:"Session" },
+  { q:"Which object is used to store logged-in user details?", opts:["request","pageContext","session","config"], ans:2, cat:"Session" },
+  { q:"Which method is used to set the session object in JSP?", opts:["session.setAttribute(String,Object)","request.setAttribute(Object,String)","response.setAttribute(String,Object)","cookies.setAttribute(String,Object)"], ans:0, cat:"Session" },
+  { q:"Which method is used to retrieve the value from the session object in JSP?", opts:["page.getAttribute(String name)","exception.getAttribute(String name)","session.getAttribute(String name)","response.getAttribute(String name)"], ans:2, cat:"Session" },
+  { q:"Which code will set the expiry time to the session?", opts:["setMaxAge()","setMaxInactiveInterval()","setSessionTimeOut()","Both a and b"], ans:1, cat:"Session" },
+  { q:"Which method returns the session ID?", opts:["session.getSessionId()","session.getId()","session.getKey()","session.getToken()"], ans:1, cat:"Session" },
+  { q:"Which method of HttpSession checks whether a session is new?", opts:["session.isCreated()","session.isNew()","session.isFresh()","session.isFirst()"], ans:1, cat:"Session" },
+  { q:"Which object is used to read cookies?", opts:["Cookie[]","HttpCookie","CookieReader","SessionCookie"], ans:0, cat:"Session" },
+  { q:"Which package contains the Cookie class?", opts:["java.servlet","jakarta.servlet.http","java.cookie","jakarta.web"], ans:1, cat:"Session" },
+  { q:"Which method is used to get a cookie name?", opts:["getCookieName()","getName()","getKey()","cookieName()"], ans:1, cat:"Session" },
+  { q:"Which method is used to get a cookie value?", opts:["getData()","getCookieValue()","getValue()","value()"], ans:2, cat:"Session" },
+  { q:"Which method is used to add a cookie in the response?", opts:["response.setCookie()","response.addCookie()","response.createCookie()","response.cookie()"], ans:1, cat:"Session" },
+  { q:"Which method of Cookie sets how long the cookie lives?", opts:["setAge()","setMaxAge()","setExpiry()","setLifetime()"], ans:1, cat:"Session" },
+
+  // ── JSTL & EL ──
+  { q:"What does JSTL stand for?", opts:["Java Script Tag Library","Java Server Tag Library","Java Tag Library","Java Server Pages Standard Tag Library"], ans:3, cat:"JSTL" },
+  { q:"Which JSP tag library is commonly used for loops and conditions?", opts:["JSTL Core","SQL","XML","Format"], ans:0, cat:"JSTL" },
+  { q:"Which JSTL tag is used for looping?", opts:["<c:if>","<c:set>","<c:forEach>","<c:choose>"], ans:2, cat:"JSTL" },
+  { q:"Which JSTL tag is used for condition checking?", opts:["<c:if>","<c:loop>","<c:set>","<c:import>"], ans:0, cat:"JSTL" },
+  { q:"Which JSTL tag is used as a switch-case alternative?", opts:["<c:if>","<c:choose>","<c:forEach>","<c:out>"], ans:1, cat:"JSTL" },
+  { q:"Which JSTL tag is used to set a variable?", opts:["<c:set>","<c:out>","<c:if>","<c:var>"], ans:0, cat:"JSTL" },
+  { q:"Which JSTL tag is used to display a value safely (XSS-safe)?", opts:["<c:print>","<c:echo>","<c:out>","<c:value>"], ans:2, cat:"JSTL" },
+  { q:"Which JSTL tag is used to iterate?", opts:["<fn:iterate>","<c:iterate>","<fn:forEach>","<c:forEach>"], ans:3, cat:"JSTL" },
+  { q:"Which JSTL tag library provides support for string manipulation?", opts:["JSTL Formatting","JSTL Function","JSTL Query","JSTL String"], ans:1, cat:"JSTL" },
+  { q:"Which JSTL tag is used to handle exceptions gracefully?", opts:["<c:catch>","<c:try>","<c:error>","<c:exception>"], ans:0, cat:"JSTL" },
+  { q:"Which JSTL core tag is used to redirect the user to another URL?", opts:["<c:out>","<c:set>","<c:redirect>","<c:url>"], ans:2, cat:"JSTL" },
+  { q:"Which JSTL tag is used to import a URL resource?", opts:["<c:get>","<c:fetch>","<c:import>","<c:include>"], ans:2, cat:"JSTL" },
+  { q:"Which JSTL tag is used to URL-encode a link?", opts:["<c:link>","<c:encode>","<c:url>","<c:href>"], ans:2, cat:"JSTL" },
+  { q:"Which JSTL tag removes a variable from scope?", opts:["<c:delete>","<c:unset>","<c:remove>","<c:clear>"], ans:2, cat:"JSTL" },
+  { q:"Which JSTL tag outputs content only when a condition is false?", opts:["<c:if test='false'>","<c:otherwise>","<c:unless>","<c:else>"], ans:1, cat:"JSTL" },
+  { q:"Which JSTL fmt tag is used to format a number?", opts:["<fmt:number>","<fmt:parse>","<fmt:formatNumber>","<fmt:format>"], ans:2, cat:"JSTL" },
+  { q:"What is the scope of a variable set with <c:set scope='application'>?", opts:["Page only","Single request","User session","Entire application"], ans:3, cat:"JSTL" },
+  { q:"Which EL symbol is used to access variables?", opts:["#{ }","${ }","@( )","%%( )"], ans:1, cat:"EL" },
+  { q:"Which EL keyword is used to access session scope?", opts:["requestScope","sessionScope","appScope","pageScope"], ans:1, cat:"EL" },
+  { q:"Which EL keyword is used to access request scope?", opts:["requestScope","sessionScope","appScope","globalScope"], ans:0, cat:"EL" },
+  { q:"Which EL operator checks equality?", opts:["==","eq","equals","==="], ans:1, cat:"EL" },
+  { q:"Which EL expression accesses a request attribute named 'name'?", opts:["${param.name}","${requestScope.name}","${session.name}","${attr.name}"], ans:1, cat:"EL" },
+  { q:"Which EL expression accesses a form field named 'email' from request parameters?", opts:["${requestScope.email}","${session.email}","${param.email}","${header.email}"], ans:2, cat:"EL" },
+  { q:"Which EL implicit object gives access to HTTP request headers?", opts:["${param}","${header}","${requestScope}","${initParam}"], ans:1, cat:"EL" },
+  { q:"Which EL implicit object is used to read init parameters from web.xml?", opts:["${param}","${config}","${initParam}","${contextParam}"], ans:2, cat:"EL" },
+  { q:"In EL, what does ${empty param.username} evaluate to when username is an empty string?", opts:["false","null","true","throws ELException"], ans:2, cat:"EL" },
+  { q:"Which JSTL function checks if a string starts with a prefix?", opts:["fn:startsWith(str, prefix)","fn:beginsWith(str, prefix)","fn:contains(str, prefix)","fn:indexOf(str, prefix) == 0"], ans:0, cat:"EL" },
+  { q:"What is the return type of HttpServletRequest.getParameterMap()?", opts:["Map<String,String>","Map<String,String[]>","HashMap","Properties"], ans:1, cat:"EL" },
+
+  // ── HTTP ──
+  { q:"Which protocol is used by servlets?", opts:["FTP","SMTP","HTTP","TCP only"], ans:2, cat:"HTTP" },
+  { q:"Which HTTP status code means page not found?", opts:["200","404","500","302"], ans:1, cat:"HTTP" },
+  { q:"Which HTTP status code means internal server error?", opts:["200","302","404","500"], ans:3, cat:"HTTP" },
+  { q:"Which HTTP status code represents a successful request?", opts:["100","200","300","500"], ans:1, cat:"HTTP" },
+  { q:"Which HTTP method is generally used for login forms?", opts:["GET","POST","PUT","TRACE"], ans:1, cat:"HTTP" },
+  { q:"Which HTTP method exposes form data in the URL?", opts:["GET","POST","DELETE","PATCH"], ans:0, cat:"HTTP" },
+  { q:"Which HTTP method is safe and idempotent?", opts:["POST","DELETE","GET","PUT"], ans:2, cat:"HTTP" },
+  { q:"Which HTTP method is idempotent?", opts:["POST","GET","PUT","DELETE"], ans:2, cat:"HTTP" },
+  { q:"Which HTTP response header is used for redirection?", opts:["Content-Type","Location","Set-Cookie","Authorization"], ans:1, cat:"HTTP" },
+  { q:"Which HTTP status code is returned for a permanent redirect?", opts:["302","301","307","304"], ans:1, cat:"HTTP" },
+  { q:"Which attribute of the <form> tag decides GET or POST?", opts:["type","action","method","enctype"], ans:2, cat:"HTTP" },
+  { q:"Which is the default HTTP method for an HTML form?", opts:["POST","PUT","DELETE","GET"], ans:3, cat:"HTTP" },
+  { q:"Which HTTP status code represents a redirect?", opts:["200","404","302","500"], ans:2, cat:"HTTP" },
+  { q:"Which method sets HTTP status in response?", opts:["setCode()","setStatus()","setResponse()","setHeader()"], ans:1, cat:"HTTP" },
+
+  // ── MVC & DESIGN PATTERNS ──
+  { q:"What does MVC stand for?", opts:["Model View Controller","Main View Controller","Model Visual Class","Multiple View Controller"], ans:0, cat:"MVC" },
+  { q:"In MVC, which component handles the user request?", opts:["Model","View","Controller","DAO"], ans:2, cat:"MVC" },
+  { q:"In MVC, which component stores business data?", opts:["Model","View","Controller","Servlet"], ans:0, cat:"MVC" },
+  { q:"In MVC, which component displays data?", opts:["DAO","View","Model","Service"], ans:1, cat:"MVC" },
+  { q:"Which component is responsible for interacting with the database in MVC?", opts:["View","Controller","DAO","JSP"], ans:2, cat:"MVC" },
+  { q:"What does DAO stand for?", opts:["Data Access Object","Data Application Object","Database Access Operation","Dynamic Access Object"], ans:0, cat:"MVC" },
+  { q:"What does POJO stand for?", opts:["Plain Old Java Object","Primary Object Java Output","Persistent Object Java Operation","Program Object Java Output"], ans:0, cat:"MVC" },
+  { q:"Which design pattern does the Front Controller servlet implement?", opts:["Singleton","Observer","Front Controller (Dispatcher)","Factory"], ans:2, cat:"MVC" },
+  { q:"Which type of path starts from the application root?", opts:["Relative path","Absolute path","Dynamic path","Local path"], ans:1, cat:"MVC" },
+
+  // ── JDBC ──
+  { q:"Which package is used to implement JDBC?", opts:["Java.sql","Javax.sql","Java.jdbc.sql","Javax.jdbc.sql"], ans:0, cat:"JDBC" },
+  { q:"Which class serves as the JDBC architecture's foundation?", opts:["JDBC driver test suite","JDBC bridge","JDBC driver manager","All of the above"], ans:2, cat:"JDBC" },
+  { q:"When running a SELECT query we use the _______ method.", opts:["st.executeUpdate()","st.executeQuery()","st.runQuery()","st.getQuery()"], ans:1, cat:"JDBC" },
+  { q:"Which JDBC method is used for INSERT/UPDATE/DELETE?", opts:["executeQuery()","executeUpdate()","execute()","run()"], ans:1, cat:"JDBC" },
+  { q:"Which interface represents a database connection in JDBC?", opts:["Statement","ResultSet","Connection","Driver"], ans:2, cat:"JDBC" },
+  { q:"Which method closes a JDBC connection?", opts:["stop()","end()","close()","terminate()"], ans:2, cat:"JDBC" },
+  { q:"Which JDBC class loads the driver?", opts:["Connection","Statement","DriverManager","ResultSet"], ans:2, cat:"JDBC" },
+  { q:"Which JDBC interface represents query results?", opts:["Statement","Connection","ResultSet","Driver"], ans:2, cat:"JDBC" },
+  { q:"Which JDBC object executes SQL statements?", opts:["ResultSet","Statement","Driver","Connection"], ans:1, cat:"JDBC" },
+  { q:"Which identifies a result set that cannot be concurrently modified?", opts:["CONCUR_UPDATABLE","CONCUR_READ_ONLY","Both a and b","None of the above"], ans:1, cat:"JDBC" },
+  { q:"Using PreparedStatement compiles the query only once, making performance faster.", opts:["True","False","Depends on DB","Only for SELECT"], ans:0, cat:"JDBC" },
+  { q:"What is the default port number of MySQL database?", opts:["8080","3306","80","127.0.0.1"], ans:1, cat:"JDBC" },
+  { q:"Which JDBC driver type is pure Java?", opts:["Type 1","Type 2","Type 3","Type 4"], ans:3, cat:"JDBC" },
+
+  // ── JAVA BASICS ──
+  { q:"The main feature of Java is ____.", opts:["Self callable","Object oriented programming","Use of servlets","Non-Independent Platform"], ans:1, cat:"Java" },
+  { q:"What does wrapper class in Java mean?", opts:["Primitive data type","Bundle of external libraries","Bundle of classes and interfaces","Encapsulation"], ans:2, cat:"Java" },
+  { q:"Which statement about a constructor in Java is correct?", opts:["Has return type","Must be same name as class name","Cannot have parameters","All of above"], ans:1, cat:"Java" },
+  { q:"Which JSP implicit object represents the output stream?", opts:["writer","out","print","stream"], ans:1, cat:"Java" },
+  { q:"What is the full form of URL?", opts:["Universal Resource Locator","Uniform Resource Locator","Unified Resource Locator","Unique Resource Link"], ans:1, cat:"Java" },
+  { q:"Which JSP object is used to get the servlet context?", opts:["config","page","application","session"], ans:2, cat:"Java" },
+  { q:"The main function of a servlet is to create ____.", opts:["Dynamic webpage","Static webpage","Normal webpage","None of above"], ans:0, cat:"Java" },
+  { q:"The web.xml file's 'servlet-name' and 'servlet-class' fields:", opts:["must match","cannot be the same","might be same","None of the above"], ans:2, cat:"Java" },
+  { q:"Which is the correct JSP translation lifecycle order?", opts:["Compile→Translate→Load→Instantiate→Init→Service→Destroy","Translate→Compile→Load→Instantiate→Init→Service→Destroy","Load→Translate→Compile→Init→Service→Destroy","Instantiate→Translate→Compile→Init→Service→Destroy"], ans:1, cat:"Java" },
+  { q:"How can we retrieve an uploaded image from an HTML form in Java?", opts:['Part imagePart = request.getPart("image")','MultiPart imagePart = request.getMultiPart("image")','MultiPart imagePart = request.getPart("image")','String imagePart = request.getParameter("image")'], ans:0, cat:"Java" },
+];
+
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+const state    = Array(QUESTIONS.length).fill(null); // null | 'correct' | 'wrong'
+const LABELS   = ['A','B','C','D'];
+let filter     = 'all';
+let catFilter  = 'All';
+let shuffled   = false;
+let displayOrder = QUESTIONS.map((_,i)=>i);
+
+const CATS = ['All', ...new Set(QUESTIONS.map(q=>q.cat))];
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+function init(){
+  document.getElementById('pTotal').textContent = QUESTIONS.length;
+  buildCatBar();
+  buildStatsRow();
+  applyFilters();
+  updateHeader();
+}
+
+function buildCatBar(){
+  const bar = document.getElementById('catBar');
+  bar.innerHTML = CATS.map(c=>`
+    <button class="cat-pill ${c==='All'?'active':''}" onclick="setCat('${c}',this)">${c}</button>
+  `).join('');
+}
+
+function buildStatsRow(){
+  const row = document.getElementById('statsRow');
+  const counts = {};
+  CATS.slice(1).forEach(c=>{ counts[c]=QUESTIONS.filter(q=>q.cat===c).length; });
+  row.innerHTML = Object.entries(counts).map(([c,n])=>`
+    <div class="stat-chip">
+      <div class="stat-chip-n" style="color:var(--accent)">${n}</div>
+      <div class="stat-chip-l">${c.toUpperCase()}</div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────
+//  FILTERS
+// ─────────────────────────────────────────────
+function setFilter(f, btn){
+  filter = f;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function setCat(c, btn){
+  catFilter = c;
+  document.querySelectorAll('.cat-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function toggleShuffle(){
+  shuffled = !shuffled;
+  document.getElementById('shuffleBtn').classList.toggle('active', shuffled);
+  if(shuffled){
+    displayOrder = [...displayOrder].sort(()=>Math.random()-.5);
+  } else {
+    displayOrder = QUESTIONS.map((_,i)=>i);
+  }
+  applyFilters();
+}
+
+function getVisibleIndices(){
+  const search = document.getElementById('searchBox').value.toLowerCase().trim();
+  return displayOrder.filter(i=>{
+    const q = QUESTIONS[i];
+    if(catFilter !== 'All' && q.cat !== catFilter) return false;
+    if(filter === 'unanswered' && state[i] !== null) return false;
+    if(filter === 'correct'    && state[i] !== 'correct') return false;
+    if(filter === 'wrong'      && state[i] !== 'wrong') return false;
+    if(search && !q.q.toLowerCase().includes(search) && !q.opts.some(o=>o.toLowerCase().includes(search))) return false;
+    return true;
+  });
+}
+
+// ─────────────────────────────────────────────
+//  PICK ANSWER
+// ─────────────────────────────────────────────
+function pick(qIndex, optIndex){
+  if(state[qIndex] !== null) return;
+  const q = QUESTIONS[qIndex];
+  const ok = optIndex === q.ans;
+  state[qIndex] = ok ? 'correct' : 'wrong';
+
+  const card = document.getElementById('card-'+qIndex);
+  if(!card) return;
+  card.classList.add(ok ? 'ac' : 'aw');
+
+  card.querySelectorAll('.opt').forEach((btn, idx)=>{
+    btn.disabled = true;
+    if(idx === optIndex){
+      btn.classList.add(ok ? 'correct' : 'wrong');
+      btn.querySelector('.res-tag').textContent = ok ? '✓ CORRECT' : '✗ WRONG';
+    } else if(idx === q.ans && !ok){
+      btn.classList.add('reveal');
+      btn.querySelector('.res-tag').textContent = '✓ ANSWER';
+    } else {
+      btn.classList.add('dim');
+    }
+  });
+
+  updateHeader();
+  if(getStats().answered === QUESTIONS.length) setTimeout(showSummary, 700);
+}
+
+// ─────────────────────────────────────────────
+//  RENDER
+// ─────────────────────────────────────────────
+function applyFilters(){
+  const indices = getVisibleIndices();
+  const container = document.getElementById('quizContainer');
+
+  if(indices.length === 0){
+    container.innerHTML = `<div class="empty">NO QUESTIONS MATCH YOUR FILTERS</div>`;
+    return;
+  }
+
+  const tagClass = { JSP:'tag-jsp',Servlet:'tag-servlet',JSTL:'tag-jstl',EL:'tag-el',JDBC:'tag-jdbc',Java:'tag-java',MVC:'tag-mvc',HTTP:'tag-http',Session:'tag-session',Filter:'tag-jsp' };
+
+  container.innerHTML = indices.map((i, pos)=>{
+    const q = QUESTIONS[i];
+    const ans = state[i];
+    const cardCls = ans ? (ans==='correct'?'q-card ac':'q-card aw') : 'q-card';
+    const tc = tagClass[q.cat]||'tag-java';
+
+    const optsHtml = q.opts.map((opt,oi)=>{
+      let cls='opt', tagTxt='';
+      if(ans){
+        if(ans==='correct' && oi===q.ans){ cls='opt correct'; tagTxt='✓ CORRECT'; }
+        else if(ans==='wrong'  && oi===q.ans){ cls='opt reveal'; tagTxt='✓ ANSWER'; }
+        else if(oi===i){ cls='opt wrong'; tagTxt='✗ WRONG'; }
+        else { cls='opt dim'; }
+      }
+      const clickAttr = ans ? 'disabled' : `onclick="pick(${i},${oi})"`;
+      return `<button class="${cls}" ${clickAttr}>
+        <span class="opt-badge">${LABELS[oi]}</span>
+        <span class="opt-text">${opt}</span>
+        <span class="res-tag">${tagTxt}</span>
+      </button>`;
+    }).join('');
+
+    return `<div class="${cardCls}" id="card-${i}" style="animation-delay:${Math.min(pos,20)*.025}s">
+      <div class="q-header">
+        <span class="q-num">Q${displayOrder.indexOf(i)+1}</span>
+        <span class="q-tag ${tc}">${q.cat}</span>
+        <div class="q-divider"></div>
+        <span class="q-num" style="color:var(--muted)">#${i+1}</span>
+      </div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">${optsHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+//  HEADER & STATS
+// ─────────────────────────────────────────────
+function getStats(){
+  const answered = state.filter(s=>s!==null).length;
+  const correct  = state.filter(s=>s==='correct').length;
+  const wrong    = state.filter(s=>s==='wrong').length;
+  return {answered,correct,wrong};
+}
+
+function updateHeader(){
+  const {answered,correct,wrong} = getStats();
+  const total = QUESTIONS.length;
+  document.getElementById('hC').textContent = correct;
+  document.getElementById('hW').textContent = wrong;
+  document.getElementById('hP').textContent = answered ? Math.round(correct/answered*100)+'%' : '—';
+  document.getElementById('pFill').style.width = (answered/total*100)+'%';
+  document.getElementById('pLeft').textContent = answered+' answered';
+  document.getElementById('pRight').textContent = answered+' / '+total;
+}
+
+// ─────────────────────────────────────────────
+//  SUMMARY
+// ─────────────────────────────────────────────
+function showSummary(){
+  const {correct,wrong,answered} = getStats();
+  const total = QUESTIONS.length;
+  const pct = Math.round(correct/total*100);
+  const grade = pct>=90?'A+':pct>=80?'A':pct>=70?'B':pct>=60?'C':pct>=50?'D':'F';
+  const msg = pct>=90?'🏆 Outstanding! You\'re a JSP/Servlet master!'
+            : pct>=75?'🎯 Excellent work! Strong understanding.'
+            : pct>=60?'📚 Good effort! Keep practicing.'
+            : pct>=40?'💡 Getting there — review the weak areas.'
+            : '🔄 Study the material and try again!';
+
+  const catBreakdown = CATS.slice(1).map(c=>{
+    const qs = QUESTIONS.map((q,i)=>({q,i})).filter(({q})=>q.cat===c);
+    const corr = qs.filter(({i})=>state[i]==='correct').length;
+    const pctC = qs.length ? Math.round(corr/qs.length*100) : 0;
+    const color = pctC>=80?'var(--correct)':pctC>=50?'var(--accent)':'var(--wrong)';
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;font-family:var(--mono);font-size:11px;">
+      <span style="width:70px;text-align:right;color:var(--muted)">${c}</span>
+      <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+        <div style="width:${pctC}%;height:100%;background:${color};transition:width .6s ease;border-radius:3px;"></div>
+      </div>
+      <span style="width:36px;color:${color}">${pctC}%</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('summary').innerHTML = `
+  <div class="sum-panel">
+    <div class="sum-grade">${grade}</div>
+    <div class="sum-sub">FINAL SCORE</div>
+    <div class="sum-grid">
+      <div class="sum-cell"><div class="sum-num" style="color:var(--accent)">${pct}%</div><div class="sum-lbl">PERCENTAGE</div></div>
+      <div class="sum-cell"><div class="sum-num" style="color:var(--correct)">${correct}</div><div class="sum-lbl">CORRECT</div></div>
+      <div class="sum-cell"><div class="sum-num" style="color:var(--wrong)">${wrong}</div><div class="sum-lbl">WRONG</div></div>
+      <div class="sum-cell"><div class="sum-num" style="color:var(--muted)">${total}</div><div class="sum-lbl">TOTAL</div></div>
+    </div>
+    <div class="sum-msg">${msg}</div>
+    <div style="max-width:420px;margin:0 auto 36px;text-align:left;">${catBreakdown}</div>
+    <div class="sum-actions">
+      <button class="btn btn-primary" onclick="restart()">↺ &nbsp;RESTART QUIZ</button>
+      <button class="btn btn-secondary" onclick="reviewWrong()">✗ &nbsp;REVIEW WRONG</button>
+    </div>
+  </div>`;
+  document.getElementById('summary').classList.add('show');
+  document.getElementById('summary').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function restart(){
+  state.fill(null);
+  document.getElementById('summary').classList.remove('show');
+  document.getElementById('searchBox').value='';
+  filter='all'; catFilter='All'; shuffled=false;
+  displayOrder=QUESTIONS.map((_,i)=>i);
+  document.querySelectorAll('.fb').forEach((b,i)=>b.classList.toggle('active',i===0));
+  document.querySelectorAll('.cat-pill').forEach((b,i)=>b.classList.toggle('active',i===0));
+  document.getElementById('shuffleBtn').classList.remove('active');
+  updateHeader();
+  applyFilters();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function reviewWrong(){
+  document.getElementById('summary').classList.remove('show');
+  filter='wrong';
+  document.querySelectorAll('.fb').forEach((b,i)=>b.classList.toggle('active',i===3));
+  catFilter='All';
+  document.querySelectorAll('.cat-pill').forEach((b,i)=>b.classList.toggle('active',i===0));
+  applyFilters();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// scroll-top
+window.addEventListener('scroll',()=>{
+  document.getElementById('scrollTop').classList.toggle('vis',window.scrollY>400);
+});
+
+init();
+</script>
+</body>
+</html>
